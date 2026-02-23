@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.22",
+    "lastTouchedAt": "2026-02-22T00:00:00.000Z"
+  },
+  "agents": {
+    "defaults": {
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "gateway": {
+    "auth": {
+      "mode": "token",
+      "token": "d16f9be873d39d1c3a46ce943f5935fe100aac74d8f609ab"
+    }
+  },
+  "plugins": {
+    "entries": {
+      "synology-chat": { "enabled": true },
+      "telegram": { "enabled": true },
+      "discord": { "enabled": true },
+      "slack": { "enabled": true },
+      "whatsapp": { "enabled": true },
+      "device-pair": { "enabled": true },
+      "memory-core": { "enabled": true },
+      "phone-control": { "enabled": true },
+      "talk-voice": { "enabled": true }
+    }
+  }
+}

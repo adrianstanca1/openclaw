@@ -19,6 +19,7 @@ import {
   applyMinimaxConfig,
   applyMoonshotConfig,
   applyMoonshotConfigCn,
+  applyOllamaConfig,
   applyOpencodeZenConfig,
   applyOpenrouterConfig,
   applySyntheticConfig,
@@ -38,6 +39,7 @@ import {
   setLitellmApiKey,
   setMinimaxApiKey,
   setMoonshotApiKey,
+  setOllamaConfig,
   setOpencodeZenApiKey,
   setOpenrouterApiKey,
   setSyntheticApiKey,
@@ -391,6 +393,13 @@ export async function applyNonInteractiveAuthChoice(params: {
     process.env.OPENAI_API_KEY = key;
     runtime.log(`Saved OPENAI_API_KEY to ${shortenHomePath(result.path)}`);
     return applyOpenAIConfig(nextConfig);
+  }
+
+  if (authChoice === "ollama") {
+    const baseUrl = opts.ollamaBaseUrl?.trim() || "http://127.0.0.1:11434";
+    const modelId = opts.ollamaModelId?.trim() || "gemma3";
+    await setOllamaConfig(baseUrl);
+    return applyOllamaConfig(nextConfig, { baseUrl, modelId });
   }
 
   if (authChoice === "openrouter-api-key") {

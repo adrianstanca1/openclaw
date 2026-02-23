@@ -3,6 +3,59 @@
 - Repo: https://github.com/openclaw/openclaw
 - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
 
+## Quick Start (New Contributors)
+
+### Prerequisites
+
+- **Node.js** 22+ (check with `node --version`)
+- **pnpm** (install: `npm install -g pnpm`)
+- **Bun** (optional but recommended: `curl -fsSL https://bun.sh/install | bash`)
+
+### First-Time Setup
+
+```bash
+# Clone and enter repo
+git clone https://github.com/openclaw/openclaw.git
+cd openclaw
+
+# Install dependencies
+pnpm install
+
+# Build the project
+pnpm build
+
+# Run tests to verify setup
+pnpm test
+```
+
+### Verify Setup
+
+```bash
+# Check CLI works
+pnpm openclaw --version
+
+# Run type checks
+pnpm tsgo
+
+# Run linting
+pnpm check
+```
+
+### Common Setup Issues
+
+| Issue                             | Solution                               |
+| --------------------------------- | -------------------------------------- |
+| `vitest not found`                | Run `pnpm install` again               |
+| `command not found` after install | Check Node 22+ is active               |
+| Build fails with type errors      | Run `pnpm tsgo` to see specific errors |
+| Test failures                     | Check `pnpm test` works before pushing |
+
+### Next Steps
+
+- Read [Project Structure](#project-structure--module-organization) below
+- See [Build, Test, and Development Commands](#build-test-and-development-commands) for daily workflows
+- Check [Testing Guidelines](#testing-guidelines) before submitting PRs
+
 ## Project Structure & Module Organization
 
 - Source code: `src/` (CLI wiring in `src/cli`, commands in `src/commands`, web provider in `src/provider-web.ts`, infra in `src/infra`, media pipeline in `src/media`).

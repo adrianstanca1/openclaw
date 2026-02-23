@@ -10,6 +10,7 @@ import {
   QIANFAN_DEFAULT_MODEL_ID,
   XIAOMI_DEFAULT_MODEL_ID,
 } from "../agents/models-config.providers.js";
+import { OLLAMA_NATIVE_BASE_URL } from "../agents/ollama-stream.js";
 import {
   buildSyntheticModelDefinition,
   SYNTHETIC_BASE_URL,
@@ -33,6 +34,7 @@ import {
   HUGGINGFACE_DEFAULT_MODEL_REF,
   OPENROUTER_DEFAULT_MODEL_REF,
   TOGETHER_DEFAULT_MODEL_REF,
+  OLLAMA_DEFAULT_MODEL_ID,
   XIAOMI_DEFAULT_MODEL_REF,
   ZAI_DEFAULT_MODEL_REF,
   XAI_DEFAULT_MODEL_REF,
@@ -485,4 +487,63 @@ export function applyQianfanProviderConfig(cfg: OpenClawConfig): OpenClawConfig 
 export function applyQianfanConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyQianfanProviderConfig(cfg);
   return applyAgentDefaultModelPrimary(next, QIANFAN_DEFAULT_MODEL_REF);
+}
+
+export function applyOllamaProviderConfig(
+  cfg: OpenClawConfig,
+  params?: { baseUrl?: string; modelId?: string },
+): OpenClawConfig {
+  const modelId = params?.modelId?.trim() || OLLAMA_DEFAULT_MODEL_ID;
+  const modelRef = `ollama/${modelId}`;
+
+  const models = { ...cfg.agents?.defaults?.models };
+  models[modelRef] = {
+    ...models[modelRef],
+    alias: models[modelRef]?.alias ?? "Ollama",
+  };
+
+  const providers = { ...cfg.models?.providers };
+  const existingProvider = providers.ollama;
+  const existingModels = Array.isArray(existingProvider?.models) ? existingProvider.models : [];
+
+  const defaultModel = {
+    id: modelId,
+    name: modelId,
+    reasoning: false,
+    input: ["text"] as ["text"],
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 8192,
+    maxTokens: 4096,
+  };
+
+  const mergedModels = [...existingModels];
+  if (!existingModels.some((m) => m.id === modelId)) {
+    mergedModels.push(defaultModel);
+  }
+
+  const { apiKey: existingApiKey, ...existingProviderRest } = (existingProvider ?? {}) as Record<
+    string,
+    unknown
+  > as { apiKey?: string };
+  const resolvedApiKey = typeof existingApiKey === "string" ? existingApiKey : "OLLAMA_API_KEY";
+
+  providers.ollama = {
+    ...existingProviderRest,
+    baseUrl: params?.baseUrl?.trim() || existingProvider?.baseUrl || OLLAMA_NATIVE_BASE_URL,
+    api: "ollama",
+    apiKey: resolvedApiKey,
+    models: mergedModels.length > 0 ? mergedModels : [defaultModel],
+  };
+
+  return applyOnboardAuthAgentModelsAndProviders(cfg, { agentModels: models, providers });
+}
+
+export function applyOllamaConfig(
+  cfg: OpenClawConfig,
+  params?: { baseUrl?: string; modelId?: string },
+): OpenClawConfig {
+  const next = applyOllamaProviderConfig(cfg, params);
+  const modelId = params?.modelId?.trim() || OLLAMA_DEFAULT_MODEL_ID;
+  const modelRef = `ollama/${modelId}`;
+  return applyAgentDefaultModelPrimary(next, modelRef);
 }

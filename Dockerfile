@@ -26,9 +26,6 @@ USER node
 RUN pnpm install --frozen-lockfile
 
 # Optionally install Chromium and Xvfb for browser automation.
-# Build with: docker build --build-arg OPENCLAW_INSTALL_BROWSER=1 ...
-# Adds ~300MB but eliminates the 60-90s Playwright install on every container start.
-# Must run after pnpm install so playwright-core is available in node_modules.
 USER root
 ARG OPENCLAW_INSTALL_BROWSER=""
 RUN if [ -n "$OPENCLAW_INSTALL_BROWSER" ]; then \
@@ -45,21 +42,17 @@ RUN if [ -n "$OPENCLAW_INSTALL_BROWSER" ]; then \
 USER node
 COPY --chown=node:node . .
 RUN pnpm build
-# Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
 ENV OPENCLAW_PREFER_PNPM=1
 RUN pnpm ui:build
 
 ENV NODE_ENV=production
 
 # Security hardening: Run as non-root user
-# The node:22-bookworm image includes a 'node' user (uid 1000)
-# This reduces the attack surface by preventing container escape via root privileges
 USER node
 
-# Start gateway server with default config.
-# Binds to loopback (127.0.0.1) by default for security.
-#
-# For container platforms requiring external health checks:
-#   1. Set OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_PASSWORD env var
-#   2. Override CMD: ["node","openclaw.mjs","gateway","--allow-unconfigured","--bind","lan"]
-CMD ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
+# Create restart wrapper - gateway exits with code 0 after spawning new process
+# We track restarts by checking if config was reloaded (gateway logs "restart mode")
+RUN printf '#!/bin/sh\nset -e\nwhile true; do\n  node openclaw.mjs gateway --allow-unconfigured --bind lan --port 3000 2>&1 | tee /tmp/gateway.log &\n  GATEWAY_PID=$!\n  wait $GATEWAY_PID\n  EXIT_CODE=$?\n  # Check if this was a restart (exit 0 with restart in logs)\n  if [ $EXIT_CODE -eq 0 ] && grep -q "restart mode" /tmp/gateway.log 2>/dev/null; then\n    echo "[$(date)] Gateway restarting..."\n    sleep 1\n    continue\n  fi\n  # Any other exit = fatal\n  exit $EXIT_CODE\ndone' > /app/docker-entrypoint.sh && \
+    chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

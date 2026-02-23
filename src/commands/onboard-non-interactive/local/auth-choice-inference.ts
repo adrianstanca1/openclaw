@@ -30,6 +30,8 @@ type AuthChoiceFlagOptions = Pick<
   | "qianfanApiKey"
   | "volcengineApiKey"
   | "byteplusApiKey"
+  | "ollamaBaseUrl"
+  | "ollamaModelId"
   | "customBaseUrl"
   | "customModelId"
   | "customApiKey"
@@ -53,6 +55,14 @@ export function inferAuthChoiceFromFlags(opts: OnboardOptions): AuthChoiceInfere
     authChoice: flag.authChoice,
     label: flag.cliFlag,
   }));
+
+  if (hasStringValue(opts.ollamaBaseUrl) || hasStringValue(opts.ollamaModelId)) {
+    matches.push({
+      optionKey: "ollamaBaseUrl",
+      authChoice: "ollama",
+      label: "--ollama-base-url/--ollama-model-id",
+    });
+  }
 
   if (
     hasStringValue(opts.customBaseUrl) ||

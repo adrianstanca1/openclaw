@@ -74,6 +74,8 @@ export function registerOnboardCommand(program: Command) {
       "Auth profile id (non-interactive; default: <provider>:manual)",
     )
     .option("--token-expires-in <duration>", "Optional token expiry duration (e.g. 365d, 12h)")
+    .option("--ollama-base-url <url>", "Ollama base URL (default: http://127.0.0.1:11434)")
+    .option("--ollama-model-id <id>", "Ollama model ID (default: gemma3)")
     .option("--cloudflare-ai-gateway-account-id <id>", "Cloudflare Account ID")
     .option("--cloudflare-ai-gateway-gateway-id <id>", "Cloudflare AI Gateway ID");
 
@@ -152,6 +154,8 @@ export function registerOnboardCommand(program: Command) {
           litellmApiKey: opts.litellmApiKey as string | undefined,
           volcengineApiKey: opts.volcengineApiKey as string | undefined,
           byteplusApiKey: opts.byteplusApiKey as string | undefined,
+          ollamaBaseUrl: opts.ollamaBaseUrl as string | undefined,
+          ollamaModelId: opts.ollamaModelId as string | undefined,
           customBaseUrl: opts.customBaseUrl as string | undefined,
           customApiKey: opts.customApiKey as string | undefined,
           customModelId: opts.customModelId as string | undefined,

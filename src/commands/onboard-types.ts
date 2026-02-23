@@ -48,6 +48,7 @@ export type AuthChoice =
   | "volcengine-api-key"
   | "byteplus-api-key"
   | "qianfan-api-key"
+  | "ollama"
   | "custom-api-key"
   | "skip";
 export type AuthChoiceGroupId =
@@ -55,6 +56,7 @@ export type AuthChoiceGroupId =
   | "anthropic"
   | "chutes"
   | "vllm"
+  | "ollama"
   | "google"
   | "copilot"
   | "openrouter"
@@ -126,6 +128,8 @@ export type OnboardOptions = {
   volcengineApiKey?: string;
   byteplusApiKey?: string;
   qianfanApiKey?: string;
+  ollamaBaseUrl?: string;
+  ollamaModelId?: string;
   customBaseUrl?: string;
   customApiKey?: string;
   customModelId?: string;

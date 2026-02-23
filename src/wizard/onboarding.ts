@@ -372,6 +372,8 @@ export async function runOnboardingWizard(
       opts: {
         tokenProvider: opts.tokenProvider,
         token: opts.authChoice === "apiKey" && opts.token ? opts.token : undefined,
+        ollamaBaseUrl: opts.ollamaBaseUrl,
+        ollamaModelId: opts.ollamaModelId,
       },
     });
     nextConfig = authResult.config;
