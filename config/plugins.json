@@ -1,0 +1,157 @@
+{
+  "name": "OpenClaw Plugins Registry",
+  "version": "1.0.0",
+  "plugins": {
+    "official": [
+      {
+        "id": "plugin-github",
+        "name": "GitHub Integration",
+        "description": "Repository management and code review",
+        "enabled": true,
+        "package": "@openclaw/plugin-github",
+        "version": "latest",
+        "config": {
+          "token": "",
+          "webhookPort": 8080,
+          "autoPR": false
+        }
+      },
+      {
+        "id": "plugin-slack",
+        "name": "Slack Integration",
+        "description": "Slack bot for team collaboration",
+        "enabled": true,
+        "package": "@openclaw/plugin-slack",
+        "version": "latest",
+        "config": {
+          "botToken": "",
+          "signingSecret": "",
+          "channels": ["general", "dev"]
+        }
+      },
+      {
+        "id": "plugin-discord",
+        "name": "Discord Integration",
+        "description": "Discord bot for community",
+        "enabled": true,
+        "package": "@openclaw/plugin-discord",
+        "version": "latest",
+        "config": {
+          "botToken": "",
+          "guildId": "",
+          "channels": []
+        }
+      },
+      {
+        "id": "plugin-telegram",
+        "name": "Telegram Integration",
+        "description": "Telegram bot for messaging",
+        "enabled": true,
+        "package": "@openclaw/plugin-telegram",
+        "version": "latest",
+        "config": {
+          "botToken": "",
+          "webhookUrl": "",
+          "adminIds": []
+        }
+      },
+      {
+        "id": "plugin-whatsapp",
+        "name": "WhatsApp Integration",
+        "description": "WhatsApp business messaging",
+        "enabled": false,
+        "package": "@openclaw/plugin-whatsapp",
+        "version": "latest",
+        "config": {
+          "phoneNumberId": "",
+          "accessToken": "",
+          "verifyToken": ""
+        }
+      },
+      {
+        "id": "plugin-notion",
+        "name": "Notion Integration",
+        "description": "Notion workspace management",
+        "enabled": false,
+        "package": "@openclaw/plugin-notion",
+        "version": "latest",
+        "config": {
+          "integrationToken": "",
+          "databaseId": ""
+        }
+      },
+      {
+        "id": "plugin-linear",
+        "name": "Linear Integration",
+        "description": "Issue tracking and sprint management",
+        "enabled": true,
+        "package": "@openclaw/plugin-linear",
+        "version": "latest",
+        "config": {
+          "apiKey": "",
+          "teamId": "",
+          "autoCreate": false
+        }
+      },
+      {
+        "id": "plugin-stripe",
+        "name": "Stripe Integration",
+        "description": "Payment processing and billing",
+        "enabled": false,
+        "package": "@openclaw/plugin-stripe",
+        "version": "latest",
+        "config": {
+          "secretKey": "",
+          "webhookSecret": "",
+          "autoInvoice": false
+        }
+      },
+      {
+        "id": "plugin-supabase",
+        "name": "Supabase Integration",
+        "description": "Database and auth management",
+        "enabled": true,
+        "package": "@openclaw/plugin-supabase",
+        "version": "latest",
+        "config": {
+          "url": "",
+          "anonKey": "",
+          "serviceKey": ""
+        }
+      },
+      {
+        "id": "plugin-vercel",
+        "name": "Vercel Integration",
+        "description": "Deployment and preview management",
+        "enabled": true,
+        "package": "@openclaw/plugin-vercel",
+        "version": "latest",
+        "config": {
+          "token": "",
+          "teamId": "",
+          "autoDeploy": false
+        }
+      }
+    ],
+    "community": [],
+    "custom": []
+  },
+  "registry": {
+    "url": "https://plugins.openclaw.ai",
+    "apiKey": "",
+    "autoInstall": false,
+    "verifySignature": true
+  },
+  "execution": {
+    "maxConcurrent": 10,
+    "timeout": 60000,
+    "retryAttempts": 3,
+    "sandboxMode": "isolated"
+  },
+  "hooks": {
+    "beforeInstall": [],
+    "afterInstall": [],
+    "beforeRun": [],
+    "afterRun": []
+  }
+}

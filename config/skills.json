@@ -1,0 +1,175 @@
+{
+  "name": "OpenClaw Skills Registry",
+  "version": "1.0.0",
+  "description": "Skill system configuration for OpenClaw agents",
+  "skills": {
+    "core": [
+      {
+        "id": "skill-web-research",
+        "name": "Web Research",
+        "description": "Search and analyze web content",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/web-research",
+        "config": {
+          "provider": "brave-search",
+          "maxResults": 10,
+          "timeout": 30000
+        }
+      },
+      {
+        "id": "skill-code-execution",
+        "name": "Code Execution",
+        "description": "Execute code snippets safely",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/code-execution",
+        "config": {
+          "sandbox": "docker",
+          "timeout": 60000,
+          "languages": ["python", "javascript", "typescript", "bash"]
+        }
+      },
+      {
+        "id": "skill-file-management",
+        "name": "File Management",
+        "description": "Read, write, and manage files",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/file-management",
+        "config": {
+          "allowedDirs": ["~/openclaw", "/tmp"],
+          "maxFileSize": "10MB"
+        }
+      },
+      {
+        "id": "skill-image-generation",
+        "name": "Image Generation",
+        "description": "Generate images from prompts",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/image-generation",
+        "config": {
+          "provider": "stable-diffusion",
+          "resolution": "1024x1024",
+          "steps": 30
+        }
+      },
+      {
+        "id": "skill-voice-synthesis",
+        "name": "Voice Synthesis",
+        "description": "Convert text to speech",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/voice-synthesis",
+        "config": {
+          "provider": "elevenlabs",
+          "voice": "default",
+          "format": "mp3"
+        }
+      },
+      {
+        "id": "skill-calendar",
+        "name": "Calendar Management",
+        "description": "Schedule and manage events",
+        "enabled": false,
+        "endpoint": "https://api.openclaw.ai/skills/calendar",
+        "config": {
+          "provider": "google-calendar",
+          "syncInterval": 300
+        }
+      },
+      {
+        "id": "skill-email",
+        "name": "Email Assistant",
+        "description": "Read and send emails",
+        "enabled": false,
+        "endpoint": "https://api.openclaw.ai/skills/email",
+        "config": {
+          "provider": "imap-smtp",
+          "checkInterval": 600
+        }
+      },
+      {
+        "id": "skill-translation",
+        "name": "Translation",
+        "description": "Translate between languages",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/translation",
+        "config": {
+          "provider": "deepL",
+          "supportedLanguages": ["en", "es", "fr", "de", "it", "pt", "zh", "ja", "ko"]
+        }
+      }
+    ],
+    "construction": [
+      {
+        "id": "skill-project-analysis",
+        "name": "Project Analysis",
+        "description": "Analyze construction project health",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/project-analysis",
+        "config": {
+          "metrics": ["schedule", "budget", "quality", "safety"],
+          "thresholds": {
+            "scheduleVariance": 10,
+            "costVariance": 15
+          }
+        }
+      },
+      {
+        "id": "skill-safety-compliance",
+        "name": "Safety Compliance",
+        "description": "Monitor safety incidents and compliance",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/safety-compliance",
+        "config": {
+          "regoDB": "osha",
+          "alertThreshold": "medium"
+        }
+      },
+      {
+        "id": "skill-cost-estimation",
+        "name": "Cost Estimation",
+        "description": "Estimate construction costs",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/cost-estimation",
+        "config": {
+          "database": "rsmeans",
+          "accuracy": "conceptual"
+        }
+      },
+      {
+        "id": "skill-schedule-optimization",
+        "name": "Schedule Optimization",
+        "description": "Optimize construction schedules",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/schedule-optimization",
+        "config": {
+          "method": "critical-path",
+          "constraints": ["resources", "weather", "permits"]
+        }
+      },
+      {
+        "id": "skill-document-review",
+        "name": "Document Review",
+        "description": "Review construction documents",
+        "enabled": true,
+        "endpoint": "https://api.openclaw.ai/skills/document-review",
+        "config": {
+          "types": ["rfi", "submittal", "change-order", "contract"],
+          "aiModel": "llama3.1:8b"
+        }
+      }
+    ],
+    "custom": []
+  },
+  "registry": {
+    "url": "https://skills.openclaw.ai",
+    "apiKey": "",
+    "autoUpdate": true,
+    "updateInterval": 86400
+  },
+  "execution": {
+    "maxConcurrent": 4,
+    "timeout": 120000,
+    "retryAttempts": 3,
+    "cacheEnabled": true,
+    "cacheTTL": 3600
+  }
+}
