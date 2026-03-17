@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-03-17T16:17:30.215Z",
+  "integrations": {
+    "telegram": {
+      "name": "telegram",
+      "enabled": true,
+      "apiKey": "8565129957:AAFFKi6EzDL_g26nU1VrwENc7a0cQ8-a8oQ",
+      "webhookUrl": "",
+      "config": {
+        "webhookPort": 8443,
+        "adminIds": [],
+        "commands": ["/start", "/help", "/infer", "/status", "/models"],
+        "botUsername": "Botulescubot"
+      }
+    },
+    "slack": {
+      "name": "slack",
+      "enabled": true,
+      "apiKey": "xoxb-YOUR-SLACK-TOKEN",
+      "webhookUrl": "",
+      "config": {
+        "signingSecret": "YOUR_SIGNING_SECRET",
+        "channels": ["general"],
+        "events": ["message", "reaction"]
+      }
+    },
+    "discord": {
+      "name": "discord",
+      "enabled": true,
+      "apiKey": "YOUR_DISCORD_BOT_TOKEN",
+      "webhookUrl": "",
+      "config": {
+        "guildId": "YOUR_GUILD_ID",
+        "channels": [],
+        "intents": ["messages", "guilds"]
+      }
+    },
+    "whatsapp": {
+      "name": "whatsapp",
+      "enabled": false,
+      "apiKey": "YOUR_ACCESS_TOKEN",
+      "webhookUrl": "",
+      "config": {
+        "phoneNumberId": "YOUR_PHONE_ID",
+        "verifyToken": "",
+        "businessAccountId": ""
+      }
+    },
+    "github": {
+      "name": "github",
+      "enabled": true,
+      "apiKey": "YOUR_GITHUB_TOKEN",
+      "webhookUrl": "",
+      "config": {
+        "webhookSecret": "YOUR_WEBHOOK_SECRET",
+        "webhookPort": 8080,
+        "autoPR": false,
+        "repos": []
+      }
+    },
+    "linear": {
+      "name": "linear",
+      "enabled": true,
+      "apiKey": "YOUR_LINEAR_API_KEY",
+      "webhookUrl": "",
+      "config": {
+        "teamId": "YOUR_TEAM_ID",
+        "autoCreate": false,
+        "syncInterval": 300
+      }
+    },
+    "supabase": {
+      "name": "supabase",
+      "enabled": true,
+      "apiKey": "YOUR_ANON_KEY",
+      "webhookUrl": "",
+      "config": {
+        "url": "https://xxx.supabase.co",
+        "serviceKey": "YOUR_SERVICE_KEY",
+        "realtime": true,
+        "storage": true
+      }
+    },
+    "vercel": {
+      "name": "vercel",
+      "enabled": true,
+      "apiKey": "YOUR_VERCEL_TOKEN",
+      "webhookUrl": "",
+      "config": {
+        "teamId": "YOUR_TEAM_ID",
+        "autoDeploy": false,
+        "previewEnabled": true
+      }
+    },
+    "stripe": {
+      "name": "stripe",
+      "enabled": false,
+      "apiKey": "sk_YOUR_STRIPE_KEY",
+      "webhookUrl": "",
+      "config": {
+        "webhookSecret": "YOUR_WEBHOOK_SECRET",
+        "autoInvoice": false,
+        "products": []
+      }
+    }
+  }
+}
