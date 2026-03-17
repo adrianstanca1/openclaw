@@ -1,0 +1,166 @@
+{
+  "name": "OpenClaw Local Optimization Config",
+  "version": "1.0.0",
+  "description": "Extraordinary performance tuning for local LLM execution",
+  
+  "models": {
+    "recommended": [
+      {
+        "name": "llama3.2:3b",
+        "purpose": "Fast responses, low latency",
+        "vram": "2GB",
+        "context": "8192",
+        "use_case": "Chat, quick tasks, brainstorming",
+        "performance_score": 95
+      },
+      {
+        "name": "llama3.1:8b",
+        "purpose": "Balanced performance",
+        "vram": "6GB",
+        "context": "8192",
+        "use_case": "General tasks, coding, analysis",
+        "performance_score": 90
+      },
+      {
+        "name": "mistral:7b",
+        "purpose": "Efficient inference",
+        "vram": "5GB",
+        "context": "8192",
+        "use_case": "Long context, document analysis",
+        "performance_score": 88
+      },
+      {
+        "name": "codellama:7b",
+        "purpose": "Code generation",
+        "vram": "5GB",
+        "context": "16384",
+        "use_case": "Programming, debugging, refactoring",
+        "performance_score": 92
+      },
+      {
+        "name": "qwen2.5:7b",
+        "purpose": "Multi-language support",
+        "vram": "5GB",
+        "context": "32768",
+        "use_case": "International tasks, translation",
+        "performance_score": 87
+      },
+      {
+        "name": "phi3:mini",
+        "purpose": "Ultra-fast responses",
+        "vram": "2GB",
+        "context": "4096",
+        "use_case": "Quick lookups, simple Q&A",
+        "performance_score": 85
+      }
+    ],
+    
+    "quantization": {
+      "recommended": "Q4_K_M",
+      "trade_offs": {
+        "Q8_0": { "quality": 99, "speed": 85, "vram": "100%" },
+        "Q6_K": { "quality": 98, "speed": 90, "vram": "75%" },
+        "Q4_K_M": { "quality": 95, "speed": 100, "vram": "50%" },
+        "Q3_K_M": { "quality": 90, "speed": 110, "vram": "35%" },
+        "Q2_K": { "quality": 80, "speed": 120, "vram": "25%" }
+      }
+    }
+  },
+
+  "performance": {
+    "cpu": {
+      "threads": "auto-detect",
+      "numa": false,
+      "priority": "high",
+      "affinity": "all-cores"
+    },
+    
+    "memory": {
+      "mlock": true,
+      "memory_map": true,
+      "numa_forwarding": false
+    },
+    
+    "batch": {
+      "ubatch_size": 512,
+      "batch_size": 1024,
+      "parallel": 4
+    },
+    
+    "context": {
+      "default": 2048,
+      "max": 8192,
+      "extend": "rope_scaling",
+      "rope_freq_base": 10000,
+      "rope_freq_scale": 1.0
+    },
+    
+    "cache": {
+      "enabled": true,
+      "type": "mmap",
+      "size_gb": 4,
+      "ttl_seconds": 300
+    }
+  },
+
+  "optimizations": {
+    "flash_attention": true,
+    "defrag_buffers": true,
+    "cache_type_f16": false,
+    "use_mmap": true,
+    "use_mlock": false,
+    
+    "gpu": {
+      "enabled": false,
+      "layers": 0,
+      "main_gpu": 0,
+      "tensor_split": null
+    },
+    
+    "speculative": {
+      "enabled": false,
+      "model": null,
+      "num_draft": 16
+    }
+  },
+
+  "hardware_profiles": {
+    "minimal": {
+      "ram": "4GB",
+      "cpu_cores": 2,
+      "recommended_model": "phi3:mini",
+      "context": 1024,
+      "threads": 2
+    },
+    "standard": {
+      "ram": "16GB",
+      "cpu_cores": 4,
+      "recommended_model": "llama3.1:8b",
+      "context": 4096,
+      "threads": 4
+    },
+    "enthusiast": {
+      "ram": "32GB",
+      "cpu_cores": 8,
+      "recommended_model": "llama3.1:8b",
+      "context": 8192,
+      "threads": 8
+    },
+    "workstation": {
+      "ram": "64GB+",
+      "cpu_cores": 16+,
+      "recommended_model": "llama3.1:70b",
+      "context": 16384,
+      "threads": 16
+    }
+  },
+
+  "auto_tune": {
+    "enabled": true,
+    "benchmark_on_start": true,
+    "adjust_threads": true,
+    "adjust_batch": true,
+    "adjust_context": true,
+    "memory_pressure_detection": true
+  }
+}

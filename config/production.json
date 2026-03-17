@@ -1,0 +1,33 @@
+{
+  "environment": "production",
+  "port": 3000,
+  "host": "localhost",
+  "hardwareProfile": "workstation",
+  "optimizations": {
+    "cache": true,
+    "kvCache": true,
+    "speculative": true,
+    "gpuOffload": true,
+    "batching": true,
+    "distributed": false
+  },
+  "models": {
+    "default": "llama3.1:8b",
+    "draft": "phi3:mini",
+    "code": "codellama:7b",
+    "analytical": "llama3.1:70b"
+  },
+  "performance": {
+    "maxThreads": 16,
+    "maxContext": 16384,
+    "batchSize": 256,
+    "cacheSize": 10000,
+    "cacheTTL": 300000
+  },
+  "monitoring": {
+    "enabled": true,
+    "dashboardPort": 3001,
+    "metricsInterval": 5000
+  },
+  "deployedAt": "2026-03-17T15:55:08.409Z"
+}
