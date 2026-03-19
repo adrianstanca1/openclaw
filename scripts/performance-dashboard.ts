@@ -4,10 +4,9 @@
  * Web-based performance dashboard with live metrics
  */
 
-import { readFileSync, writeFileSync } from 'fs'
-import { join } from 'path'
+import http from "http";
 
-const PORT = 3001
+const PORT = 3001;
 
 const dashboardHTML = `
 <!DOCTYPE html>
@@ -148,20 +147,18 @@ const dashboardHTML = `
   </script>
 </body>
 </html>
-`
+`;
 
 // Start simple HTTP server
-const http = require('http')
-
-const server = http.createServer((req: any, res: any) => {
-  res.writeHead(200, { 'Content-Type': 'text/html' })
-  res.end(dashboardHTML)
-})
+const server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
+  res.writeHead(200, { "Content-Type": "text/html" });
+  res.end(dashboardHTML);
+});
 
 server.listen(PORT, () => {
-  console.log('📊 OpenClaw Performance Dashboard')
-  console.log(`   URL: http://localhost:${PORT}`)
-  console.log(`   Network: http://192.168.1.118:${PORT}`)
-  console.log('\n   Dashboard is live!')
-  console.log('   Press Ctrl+C to stop')
-})
+  console.log("📊 OpenClaw Performance Dashboard");
+  console.log(`   URL: http://localhost:${PORT}`);
+  console.log(`   Network: http://192.168.1.118:${PORT}`);
+  console.log("\n   Dashboard is live!");
+  console.log("   Press Ctrl+C to stop");
+});
