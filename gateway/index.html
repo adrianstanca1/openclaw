@@ -1,190 +1,334 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OpenClaw Gateway</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; background: #0a0a0a; color: #fff; }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-    .header h1 { font-size: 20px; }
-    .header-controls { display: flex; gap: 10px; align-items: center; }
-    .model-select { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 12px; border-radius: 6px; }
-    .container { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 60px); }
-    .sidebar { background: #1a1a1a; padding: 20px; border-right: 1px solid #333; overflow-y: auto; }
-    .main { display: flex; flex-direction: column; }
-    .chat-container { flex: 1; padding: 20px; overflow-y: auto; }
-    .input-container { padding: 20px; background: #1a1a1a; border-top: 1px solid #333; }
-    .message { margin-bottom: 20px; padding: 15px; border-radius: 12px; max-width: 80%; }
-    .message.user { background: #667eea; margin-left: auto; }
-    .message.assistant { background: #2a2a2a; }
-    .message.system { background: #1a1a1a; border: 1px solid #333; font-size: 12px; color: #888; }
-    .input-box { display: flex; gap: 10px; }
-    textarea { flex: 1; background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; resize: none; font-family: inherit; }
-    textarea:focus { outline: none; border-color: #667eea; }
-    button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: #fff; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    button:hover { opacity: 0.9; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .stats { margin-bottom: 20px; }
-    .stat-card { background: #0a0a0a; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
-    .stat-card h3 { font-size: 12px; color: #888; margin-bottom: 5px; }
-    .stat-card .value { font-size: 24px; font-weight: bold; color: #667eea; }
-    .history-item { padding: 10px; background: #0a0a0a; border-radius: 6px; margin-bottom: 8px; cursor: pointer; }
-    .history-item:hover { background: #1a1a1a; }
-    .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .badge { display: inline-block; padding: 4px 8px; background: #333; border-radius: 4px; font-size: 11px; margin-left: 8px; }
-    .log { font-size: 11px; color: #666; margin-top: 5px; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>🦞 OpenClaw Gateway</h1>
-    <div class="header-controls">
-      <select class="model-select" id="model-select">
-        <option value="llama3.1:8b">Llama 3.1 8B</option>
-        <option value="llama3.2:3b">Llama 3.2 3B</option>
-        <option value="phi3:mini">Phi-3 Mini</option>
-        <option value="codellama:7b">CodeLlama 7B</option>
-        <option value="mistral:7b">Mistral 7B</option>
-        <option value="llama3.1:70b">Llama 3.1 70B</option>
-      </select>
-      <button id="clear-btn">Clear</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenClaw Gateway</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+        background: #0a0a0a;
+        color: #fff;
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .header h1 {
+        font-size: 20px;
+      }
+      .header-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .model-select {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 6px;
+      }
+      .container {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        height: calc(100vh - 60px);
+      }
+      .sidebar {
+        background: #1a1a1a;
+        padding: 20px;
+        border-right: 1px solid #333;
+        overflow-y: auto;
+      }
+      .main {
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-container {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+      .input-container {
+        padding: 20px;
+        background: #1a1a1a;
+        border-top: 1px solid #333;
+      }
+      .message {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 12px;
+        max-width: 80%;
+      }
+      .message.user {
+        background: #667eea;
+        margin-left: auto;
+      }
+      .message.assistant {
+        background: #2a2a2a;
+      }
+      .message.system {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        font-size: 12px;
+        color: #888;
+      }
+      .input-box {
+        display: flex;
+        gap: 10px;
+      }
+      textarea {
+        flex: 1;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        resize: none;
+        font-family: inherit;
+      }
+      textarea:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+      button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .stats {
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: #0a0a0a;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      .stat-card h3 {
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 5px;
+      }
+      .stat-card .value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+      }
+      .history-item {
+        padding: 10px;
+        background: #0a0a0a;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        cursor: pointer;
+      }
+      .history-item:hover {
+        background: #1a1a1a;
+      }
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        background: #333;
+        border-radius: 4px;
+        font-size: 11px;
+        margin-left: 8px;
+      }
+      .log {
+        font-size: 11px;
+        color: #666;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🦞 OpenClaw Gateway</h1>
+      <div class="header-controls">
+        <select class="model-select" id="model-select">
+          <option value="llama3.1:8b">Llama 3.1 8B</option>
+          <option value="llama3.2:3b">Llama 3.2 3B</option>
+          <option value="phi3:mini">Phi-3 Mini</option>
+          <option value="codellama:7b">CodeLlama 7B</option>
+          <option value="mistral:7b">Mistral 7B</option>
+          <option value="llama3.1:70b">Llama 3.1 70B</option>
+        </select>
+        <button id="clear-btn">Clear</button>
+      </div>
     </div>
-  </div>
 
-  <div class="container">
-    <div class="sidebar">
-      <div class="stats">
-        <div class="stat-card">
-          <h3>Requests</h3>
-          <div class="value" id="stat-requests">0</div>
+    <div class="container">
+      <div class="sidebar">
+        <div class="stats">
+          <div class="stat-card">
+            <h3>Requests</h3>
+            <div class="value" id="stat-requests">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Avg Latency</h3>
+            <div class="value" id="stat-latency">0ms</div>
+          </div>
+          <div class="stat-card">
+            <h3>Tokens</h3>
+            <div class="value" id="stat-tokens">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Cache Hits</h3>
+            <div class="value" id="stat-cache">0%</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <h3>Avg Latency</h3>
-          <div class="value" id="stat-latency">0ms</div>
-        </div>
-        <div class="stat-card">
-          <h3>Tokens</h3>
-          <div class="value" id="stat-tokens">0</div>
-        </div>
-        <div class="stat-card">
-          <h3>Cache Hits</h3>
-          <div class="value" id="stat-cache">0%</div>
-        </div>
+
+        <h3 style="margin: 20px 0 10px; font-size: 14px">History</h3>
+        <div id="history"></div>
       </div>
 
-      <h3 style="margin: 20px 0 10px; font-size: 14px;">History</h3>
-      <div id="history"></div>
-    </div>
-
-    <div class="main">
-      <div class="chat-container" id="chat"></div>
-      <div class="input-container">
-        <div class="input-box">
-          <textarea id="input" rows="3" placeholder="Type your message... (Shift+Enter for newline)"></textarea>
-          <button id="send-btn">Send</button>
+      <div class="main">
+        <div class="chat-container" id="chat"></div>
+        <div class="input-container">
+          <div class="input-box">
+            <textarea
+              id="input"
+              rows="3"
+              placeholder="Type your message... (Shift+Enter for newline)"
+            ></textarea>
+            <button id="send-btn">Send</button>
+          </div>
+          <div class="log" id="status">Ready</div>
         </div>
-        <div class="log" id="status">Ready</div>
       </div>
     </div>
-  </div>
 
-  <script>
-    const API_BASE = window.location.origin
-    const chat = document.getElementById('chat')
-    const input = document.getElementById('input')
-    const sendBtn = document.getElementById('send-btn')
-    const modelSelect = document.getElementById('model-select')
-    const clearBtn = document.getElementById('clear-btn')
-    const historyDiv = document.getElementById('history')
-    const statRequests = document.getElementById('stat-requests')
-    const statLatency = document.getElementById('stat-latency')
-    const statTokens = document.getElementById('stat-tokens')
-    const statCache = document.getElementById('stat-cache')
+    <script>
+      const API_BASE = window.location.origin;
+      const chat = document.getElementById("chat");
+      const input = document.getElementById("input");
+      const sendBtn = document.getElementById("send-btn");
+      const modelSelect = document.getElementById("model-select");
+      const clearBtn = document.getElementById("clear-btn");
+      const historyDiv = document.getElementById("history");
+      const statRequests = document.getElementById("stat-requests");
+      const statLatency = document.getElementById("stat-latency");
+      const statTokens = document.getElementById("stat-tokens");
+      const statCache = document.getElementById("stat-cache");
 
-    let messages = []
-    let stats = { requests: 0, totalLatency: 0, tokens: 0, cacheHits: 0 }
+      let messages = [];
+      let stats = { requests: 0, totalLatency: 0, tokens: 0, cacheHits: 0 };
 
-    function addMessage(role, text, latency = null) {
-      const div = document.createElement('div')
-      div.className = `message ${role}`
-      div.innerHTML = text.replace(/\n/g, '<br>')
-      if (latency) {
-        div.innerHTML += `<div class="log">⏱️ ${latency}ms</div>`
-      }
-      chat.appendChild(div)
-      chat.scrollTop = chat.scrollHeight
-      messages.push({ role, text, latency })
-    }
-
-    function updateStats() {
-      statRequests.textContent = stats.requests
-      statLatency.textContent = Math.round(stats.totalLatency / stats.requests) + 'ms'
-      statTokens.textContent = stats.tokens
-      statCache.textContent = Math.round((stats.cacheHits / stats.requests) * 100) + '%'
-    }
-
-    function addToHistory(text) {
-      const item = document.createElement('div')
-      item.className = 'history-item'
-      item.textContent = text.substring(0, 50) + '...'
-      item.onclick = () => { input.value = text }
-      historyDiv.insertBefore(item, historyDiv.firstChild)
-    }
-
-    async function send() {
-      const text = input.value.trim()
-      if (!text) return
-
-      addMessage('user', text)
-      addToHistory(text)
-      input.value = ''
-      sendBtn.disabled = true
-      sendBtn.innerHTML = '<span class="loading"></span>'
-      status.textContent = 'Thinking...'
-
-      const model = modelSelect.value
-      const start = Date.now()
-
-      try {
-        const response = await fetch(`${API_BASE}/api/infer`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: text, model }),
-        })
-
-        const data = await response.json()
-        const latency = Date.now() - start
-
-        addMessage('assistant', data.response, latency)
-        stats.requests++
-        stats.totalLatency += latency
-        stats.tokens += data.tokens || 0
-        if (data.cacheHit) stats.cacheHits++
-        updateStats()
-        status.textContent = 'Ready'
-      } catch (error) {
-        addMessage('system', `Error: ${error.message}`)
-        status.textContent = 'Error'
+      function addMessage(role, text, latency = null) {
+        const div = document.createElement("div");
+        div.className = `message ${role}`;
+        div.innerHTML = text.replace(/\n/g, "<br>");
+        if (latency) {
+          div.innerHTML += `<div class="log">⏱️ ${latency}ms</div>`;
+        }
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+        messages.push({ role, text, latency });
       }
 
-      sendBtn.disabled = false
-      sendBtn.textContent = 'Send'
-    }
-
-    sendBtn.onclick = send
-    input.onkeydown = (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        send()
+      function updateStats() {
+        statRequests.textContent = stats.requests;
+        statLatency.textContent = Math.round(stats.totalLatency / stats.requests) + "ms";
+        statTokens.textContent = stats.tokens;
+        statCache.textContent = Math.round((stats.cacheHits / stats.requests) * 100) + "%";
       }
-    }
-    clearBtn.onclick = () => { chat.innerHTML = ''; messages = [] }
 
-    // Welcome message
-    addMessage('system', 'OpenClaw Gateway ready. Select a model and start chatting!')
-  </script>
-</body>
+      function addToHistory(text) {
+        const item = document.createElement("div");
+        item.className = "history-item";
+        item.textContent = text.substring(0, 50) + "...";
+        item.onclick = () => {
+          input.value = text;
+        };
+        historyDiv.insertBefore(item, historyDiv.firstChild);
+      }
+
+      async function send() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage("user", text);
+        addToHistory(text);
+        input.value = "";
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="loading"></span>';
+        status.textContent = "Thinking...";
+
+        const model = modelSelect.value;
+        const start = Date.now();
+
+        try {
+          const response = await fetch(`${API_BASE}/api/infer`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: text, model }),
+          });
+
+          const data = await response.json();
+          const latency = Date.now() - start;
+
+          addMessage("assistant", data.response, latency);
+          stats.requests++;
+          stats.totalLatency += latency;
+          stats.tokens += data.tokens || 0;
+          if (data.cacheHit) stats.cacheHits++;
+          updateStats();
+          status.textContent = "Ready";
+        } catch (error) {
+          addMessage("system", `Error: ${error.message}`);
+          status.textContent = "Error";
+        }
+
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Send";
+      }
+
+      sendBtn.onclick = send;
+      input.onkeydown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          send();
+        }
+      };
+      clearBtn.onclick = () => {
+        chat.innerHTML = "";
+        messages = [];
+      };
+
+      // Welcome message
+      addMessage("system", "OpenClaw Gateway ready. Select a model and start chatting!");
+    </script>
+  </body>
 </html>
