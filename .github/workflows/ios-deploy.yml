@@ -1,0 +1,232 @@
+name: iOS Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/ios/**'
+      - 'apps/shared/**'
+      - 'Swabble/**'
+      - 'scripts/ios-*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'beta'
+        type: choice
+        options:
+          - beta
+          - production
+      skip_tests:
+        description: 'Skip test suite'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ios-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 120
+
+jobs:
+  test:
+    name: Test
+    runs-on: macos-latest
+    if: ${{ !inputs.skip_tests }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          install-bun: "false"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: false
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Install dependencies
+        run: |
+          brew install swiftformat swiftlint xcodegen fastlane
+          pnpm install
+
+      - name: Configure signing
+        run: |
+          cd apps/ios
+          cp LocalSigning.xcconfig.example LocalSigning.xcconfig || true
+          ../../scripts/ios-configure-signing.sh || true
+
+      - name: Generate Xcode project
+        run: |
+          cd apps/ios
+          xcodegen generate
+
+      - name: Run tests
+        run: |
+          cd apps/ios
+          fastlane scan \
+            --scheme OpenClaw \
+            --destination 'platform=iOS Simulator,name=iPhone 16' \
+            --clean \
+            --code_coverage true
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-coverage
+          path: apps/ios/fastlane/test_output/
+          retention-days: 7
+
+  build:
+    name: Build
+    needs: [test]
+    if: always() && (needs.test.result == 'success' || inputs.skip_tests)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          install-bun: "false"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: false
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Install dependencies
+        run: |
+          brew install swiftformat swiftlint xcodegen fastlane
+          pnpm install
+
+      - name: Setup App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          mkdir -p ~/private_keys
+          echo "$ASC_KEY_CONTENT" | base64 -d > ~/private_keys/AuthKey_${ASC_KEY_ID}.p8
+
+      - name: Build iOS app
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_PATH: ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+          IOS_DEVELOPMENT_TEAM: ${{ secrets.IOS_DEVELOPMENT_TEAM }}
+        run: |
+          cd apps/ios
+          fastlane beta
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: apps/ios/build/
+          retention-days: 7
+
+      - name: Upload dSYM
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-dsym
+          path: apps/ios/*.app.dSYM.zip
+          retention-days: 30
+
+  deploy:
+    name: Deploy
+    needs: [build]
+    runs-on: macos-latest
+    environment:
+      name: ${{ inputs.environment || 'beta' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: false
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Install fastlane
+        run: |
+          brew install fastlane
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-build
+          path: apps/ios/build/
+
+      - name: Upload to TestFlight
+        if: ${{ inputs.environment == 'beta' || !inputs.environment }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          cd apps/ios
+          fastlane upload_to_testflight \
+            api_key_path: fastlane/.env \
+            skip_waiting_for_build_processing: true
+
+      - name: Upload to App Store
+        if: ${{ inputs.environment == 'production' }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          cd apps/ios
+          fastlane deliver \
+            force: true \
+            submit_for_review: true \
+            automatic_release: false
+
+      - name: Notify deployment
+        if: always()
+        env:
+          ENV_NAME: ${{ inputs.environment || 'beta' }}
+          COMMIT_SHA: ${{ github.sha }}
+          REF_NAME: ${{ github.ref }}
+        run: |
+          echo "📱 iOS deployment complete"
+          echo "Environment: $ENV_NAME"
+          echo "Commit: $COMMIT_SHA"
+          echo "Ref: $REF_NAME"
