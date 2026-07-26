@@ -1,0 +1,27 @@
+services:
+  openclaw-gateway:
+    image: openclaw/openclaw:latest
+    container_name: openclaw-gateway
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      # LLM providers (from /opt/data/.env — real keys)
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      # Channels: intentionally NOT enabling Telegram (token belongs to Hermes bot — would collide).
+      # Add other channel tokens here if you want openclaw on a different channel.
+    volumes:
+      - /srv/host/openclaw/config:/home/node/.openclaw
+      - /srv/host/openclaw/workspace:/home/node/.openclaw/workspace
+    networks:
+      traefik_web:
+        ipv4_address: 172.16.3.30
+    ports:
+      - "127.0.0.1:18789:18789"   # LAN/loopback only, not public 0.0.0.0
+    restart: unless-stopped
+    command: ["node", "openclaw.mjs", "gateway", "--bind", "loopback", "--port", "18789"]
+
+networks:
+  traefik_web:
+    external: true
